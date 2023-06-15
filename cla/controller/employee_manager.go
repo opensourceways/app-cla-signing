@@ -16,6 +16,7 @@ func AddRouteForEmployeeManagerController(
 		s: s,
 	}
 
+	r.GET("/v1/employee-manager", ctl.ListEmployeeManager)
 	r.POST("/v1/employee-manager", ctl.AddEmployeeManager)
 	r.DELETE("/v1/employee-manager", ctl.RemoveEmployeeManager)
 }
@@ -83,5 +84,20 @@ func (ctl employeeManagerController) RemoveEmployeeManager(ctx *gin.Context) {
 		commonctl.SendFailedResp(ctx, err)
 	} else {
 		commonctl.SendRespOfDelete(ctx)
+	}
+}
+
+// ListEmployeeManager
+// @Description list employee manager
+// @Tags   EmployeeManager
+// @Accept json
+// @Success 200 {object} app.EmployeeManagerDTO
+// @Failure 400 {object} commonctl.ResponseData
+// @router / [get]
+func (ctl employeeManagerController) ListEmployeeManager(ctx *gin.Context) {
+	if v, err := ctl.s.List(""); err != nil {
+		commonctl.SendFailedResp(ctx, err)
+	} else {
+		commonctl.SendRespOfGet(ctx, v)
 	}
 }

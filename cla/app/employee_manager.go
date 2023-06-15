@@ -18,6 +18,7 @@ func NewEmployeeManagerService(
 type EmployeeManagerService interface {
 	Add(cmd *CmdToAddEmployeeManager) (err error)
 	Remove(cmd *CmdToRemoveEmployeeManager) (err error)
+	List(corpSigningId string) ([]EmployeeManagerDTO, error)
 }
 
 type employeeManagerService struct {
@@ -65,4 +66,24 @@ func (s *employeeManagerService) Remove(cmd *CmdToRemoveEmployeeManager) (err er
 	// TODO send email
 
 	return
+}
+
+func (s *employeeManagerService) List(corpSigningId string) ([]EmployeeManagerDTO, error) {
+	cs, err := s.repo.Find(corpSigningId)
+	if err != nil {
+		return nil, err
+	}
+
+	dtos := make([]EmployeeManagerDTO, len(cs.Managers))
+	for i := range cs.Managers {
+		item := &cs.Managers[i]
+
+		dtos[i] = EmployeeManagerDTO{
+			ID:    item.Account.Account(),
+			Name:  item.Name.Name(),
+			Email: item.Email.EmailAddr(),
+		}
+	}
+
+	return dtos, nil
 }
