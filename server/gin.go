@@ -16,9 +16,12 @@ import (
 	"github.com/opensourceways/app-cla-signing/cla/domain/corpemaildomainemail"
 	"github.com/opensourceways/app-cla-signing/cla/domain/emailclient"
 	"github.com/opensourceways/app-cla-signing/cla/domain/signingcodeemail"
+	"github.com/opensourceways/app-cla-signing/cla/domain/userservice"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/corpemaildomainemailimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/emailclientimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/emaildeliveryimpl"
+	"github.com/opensourceways/app-cla-signing/cla/infrastructure/encryptionimpl"
+	"github.com/opensourceways/app-cla-signing/cla/infrastructure/passwordimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/randomcodeimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/repositoryimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/signingcodeemailimpl"
@@ -77,6 +80,7 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 
 func setApiV1(v1 *gin.RouterGroup, cfg *config.Config) {
 	initVerificationCode(v1, cfg)
+	initEmployeeManager(v1, cfg)
 }
 
 func initVerificationCode(v1 *gin.RouterGroup, cfg *config.Config) {
@@ -104,6 +108,28 @@ func initVerificationCode(v1 *gin.RouterGroup, cfg *config.Config) {
 		),
 		app.NewEmailDomainCodeService(
 			cli, repo, corpEmailDomain, delivery, randomCode,
+		),
+	)
+}
+
+func initEmployeeManager(v1 *gin.RouterGroup, cfg *config.Config) {
+	repo := repositoryimpl.NewCorpSigning(
+		mongodb.DAO(cfg.Mongodb.Collections.CorpSigning),
+	)
+
+	userRepo := repositoryimpl.NewUser(
+		mongodb.DAO(cfg.Mongodb.Collections.User),
+	)
+
+	encrypt := encryptionimpl.NewEncryptionImpl()
+
+	password := passwordimpl.NewPasswordImpl()
+
+	user := userservice.NewUserService(userRepo, encrypt, password)
+
+	controller.AddRouteForEmployeeManagerController(
+		v1, app.NewEmployeeManagerService(
+			repo, user,
 		),
 	)
 }

@@ -6,6 +6,11 @@ import (
 	"github.com/opensourceways/app-cla-signing/cla/domain/emaildelivery"
 )
 
+func NewCorpEmailDomainEmail(builder emailBodyBuilder) CorpEmailDomainEmail {
+	return &corpEmailDomainEmail{builder: builder}
+}
+
+// EmailBodyParameter
 type EmailBodyParameter struct {
 	Code      string
 	CorpName  dp.CorpName
@@ -13,20 +18,22 @@ type EmailBodyParameter struct {
 	Community domain.Community
 }
 
+// emailBodyBuilder
 type emailBodyBuilder interface {
 	Build(*EmailBodyParameter) (emaildelivery.EmailBody, error)
 }
 
-func NewCorpEmailDomainEmail(builder emailBodyBuilder) *CorpEmailDomainEmail {
-	return &CorpEmailDomainEmail{builder: builder}
+// CorpEmailDomainEmail
+type CorpEmailDomainEmail interface {
+	Builder(p *EmailBodyParameter) corpEmailDomainEmailAdapter
 }
 
-// CorpEmailDomainEmail
-type CorpEmailDomainEmail struct {
+// corpEmailDomainEmail
+type corpEmailDomainEmail struct {
 	builder emailBodyBuilder
 }
 
-func (e *CorpEmailDomainEmail) Builder(p *EmailBodyParameter) corpEmailDomainEmailAdapter {
+func (e *corpEmailDomainEmail) Builder(p *EmailBodyParameter) corpEmailDomainEmailAdapter {
 	return corpEmailDomainEmailAdapter{
 		builder: e.builder,
 		p:       *p,

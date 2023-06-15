@@ -7,11 +7,17 @@ import (
 )
 
 func SendBadRequestBody(ctx *gin.Context, err error) {
-	SendFailedResp(ctx, errorBadRequestBody, err)
+	ctx.JSON(
+		http.StatusBadRequest,
+		newResponseCodeMsg(errorBadRequestBody, err.Error()),
+	)
 }
 
 func SendBadRequestParam(ctx *gin.Context, err error) {
-	SendFailedResp(ctx, errorBadRequestParam, err)
+	ctx.JSON(
+		http.StatusBadRequest,
+		newResponseCodeMsg(errorBadRequestParam, err.Error()),
+	)
 }
 
 func SendRespOfCreate(ctx *gin.Context) {
@@ -22,6 +28,10 @@ func SendRespOfPut(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, newResponseCodeMsg("", "success"))
 }
 
+func SendRespOfDelete(ctx *gin.Context) {
+	ctx.JSON(http.StatusNoContent, newResponseCodeMsg("", "success"))
+}
+
 func SendRespOfGet(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusOK, newResponseData(data))
 }
@@ -30,16 +40,36 @@ func SendRespOfPost(ctx *gin.Context, data interface{}) {
 	ctx.JSON(http.StatusCreated, newResponseData(data))
 }
 
-func SendFailedResp(ctx *gin.Context, code string, err error) {
+// errorWithCode
+type errorWithCode interface {
+	Code() string
+}
+
+// errorOfNotFound
+type errorOfNotFound interface {
+	NotFound()
+}
+
+// SendFailedResp
+func SendFailedResp(ctx *gin.Context, err error) {
+	code := ""
+	if v, ok := err.(errorWithCode); ok {
+		code = v.Code()
+	}
+
 	if code == "" {
 		ctx.JSON(
 			http.StatusInternalServerError,
 			newResponseCodeMsg(errorSystemError, err.Error()),
 		)
-	} else {
-		ctx.JSON(
-			http.StatusBadRequest,
-			newResponseCodeMsg(code, err.Error()),
-		)
+
+		return
 	}
+
+	status := http.StatusBadRequest
+	if _, ok := err.(errorOfNotFound); ok {
+		status = http.StatusNotFound
+	}
+
+	ctx.JSON(status, newResponseCodeMsg(code, err.Error()))
 }
