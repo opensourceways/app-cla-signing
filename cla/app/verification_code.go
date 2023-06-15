@@ -12,13 +12,13 @@ import (
 )
 
 type SigningCodeService interface {
-	Create(cmd *CmdToCreateCodeForSigning) (errCode string, err error)
+	Create(cmd *CmdToCreateCodeForSigning) (err error)
 }
 
 func NewSigningCodeService(
-	cli *emailclient.EmailClient,
+	cli emailclient.EmailClient,
 	repo repository.VerificationCode,
-	builder *signingcodeemail.SigningCodeEmail,
+	builder signingcodeemail.SigningCodeEmail,
 	service emaildelivery.EmailDeliveryService,
 	randomCode randomcode.RandomCode,
 ) SigningCodeService {
@@ -33,14 +33,14 @@ func NewSigningCodeService(
 
 // signingCodeService
 type signingCodeService struct {
-	cli        *emailclient.EmailClient
+	cli        emailclient.EmailClient
 	repo       repository.VerificationCode
-	builder    *signingcodeemail.SigningCodeEmail
+	builder    signingcodeemail.SigningCodeEmail
 	service    emaildelivery.EmailDeliveryService
 	randomCode randomcode.RandomCode
 }
 
-func (s *signingCodeService) Create(cmd *CmdToCreateCodeForSigning) (errCode string, err error) {
+func (s *signingCodeService) Create(cmd *CmdToCreateCodeForSigning) (err error) {
 	code, err := s.randomCode.New()
 	if err != nil {
 		return
@@ -66,13 +66,13 @@ func (s *signingCodeService) Create(cmd *CmdToCreateCodeForSigning) (errCode str
 }
 
 type EmailDomainCodeService interface {
-	Create(cmd *CmdToCreateCodeForEmailDomain) (errCode string, err error)
+	Create(cmd *CmdToCreateCodeForEmailDomain) (err error)
 }
 
 func NewEmailDomainCodeService(
-	cli *emailclient.EmailClient,
+	cli emailclient.EmailClient,
 	repo repository.VerificationCode,
-	builder *corpemaildomainemail.CorpEmailDomainEmail,
+	builder corpemaildomainemail.CorpEmailDomainEmail,
 	service emaildelivery.EmailDeliveryService,
 	randomCode randomcode.RandomCode,
 ) EmailDomainCodeService {
@@ -87,14 +87,14 @@ func NewEmailDomainCodeService(
 
 // emailDomainCodeService
 type emailDomainCodeService struct {
-	cli        *emailclient.EmailClient
+	cli        emailclient.EmailClient
 	repo       repository.VerificationCode
-	builder    *corpemaildomainemail.CorpEmailDomainEmail
+	builder    corpemaildomainemail.CorpEmailDomainEmail
 	service    emaildelivery.EmailDeliveryService
 	randomCode randomcode.RandomCode
 }
 
-func (s *emailDomainCodeService) Create(cmd *CmdToCreateCodeForEmailDomain) (errCode string, err error) {
+func (s *emailDomainCodeService) Create(cmd *CmdToCreateCodeForEmailDomain) (err error) {
 	// get corp name and email addr by signing id
 
 	code, err := s.randomCode.New()

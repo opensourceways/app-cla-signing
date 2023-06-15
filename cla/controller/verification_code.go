@@ -8,11 +8,6 @@ import (
 	commonctl "github.com/opensourceways/app-cla-signing/common/controller"
 )
 
-type verificationCodeController struct {
-	signingCodeService     app.SigningCodeService
-	emailDomainCodeService app.EmailDomainCodeService
-}
-
 func AddRouteForVerificationCodeController(
 	r *gin.RouterGroup,
 	s app.SigningCodeService,
@@ -27,17 +22,22 @@ func AddRouteForVerificationCodeController(
 	r.POST("/v1/verification-code", ctl.NewCodeForAddingEmailDomain)
 }
 
+type verificationCodeController struct {
+	signingCodeService     app.SigningCodeService
+	emailDomainCodeService app.EmailDomainCodeService
+}
+
 // NewCodeForSigning
 // @Description apply a new verification code for signing
 // @Tags   VerificationCode
 // @Accept json
-// @Param    link_id    path    string                     true    "link id"
-// @Param    param      body    verificationCodeRequest    true    "body of applying a new verification code"
+// @Param  link_id  path  string                     true  "link id"
+// @Param  param    body  reqToCreateCodeForSigning  true  "body of applying a new verification code"
 // @Success 201 {object} commonctl.ResponseData
 // @Failure 400 {object} commonctl.ResponseData
 // @router /{link_id} [post]
 func (ctl verificationCodeController) NewCodeForSigning(ctx *gin.Context) {
-	var req verificationCodeRequest
+	var req reqToCreateCodeForSigning
 	if err := ctx.ShouldBindBodyWith(&req, binding.JSON); err != nil {
 		commonctl.SendBadRequestBody(ctx, err)
 
@@ -51,8 +51,8 @@ func (ctl verificationCodeController) NewCodeForSigning(ctx *gin.Context) {
 		return
 	}
 
-	if code, err := ctl.signingCodeService.Create(&cmd); err != nil {
-		commonctl.SendFailedResp(ctx, code, err)
+	if err := ctl.signingCodeService.Create(&cmd); err != nil {
+		commonctl.SendFailedResp(ctx, err)
 	} else {
 		commonctl.SendRespOfCreate(ctx)
 	}
@@ -66,10 +66,10 @@ func (ctl verificationCodeController) NewCodeForSigning(ctx *gin.Context) {
 // @Failure 400 {object} commonctl.ResponseData
 // @router / [post]
 func (ctl verificationCodeController) NewCodeForAddingEmailDomain(ctx *gin.Context) {
-	cmd := app.CmdToCreateCodeForEmailDomain{} // TODO
+	cmd := app.CmdToCreateCodeForEmailDomain{} // TODO build the cmd
 
-	if code, err := ctl.emailDomainCodeService.Create(&cmd); err != nil {
-		commonctl.SendFailedResp(ctx, code, err)
+	if err := ctl.emailDomainCodeService.Create(&cmd); err != nil {
+		commonctl.SendFailedResp(ctx, err)
 	} else {
 		commonctl.SendRespOfCreate(ctx)
 	}

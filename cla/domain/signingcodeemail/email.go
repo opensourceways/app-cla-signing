@@ -6,26 +6,33 @@ import (
 	"github.com/opensourceways/app-cla-signing/cla/domain/emaildelivery"
 )
 
+func NewSigningCodeEmail(builder emailBodyBuilder) SigningCodeEmail {
+	return &signingCodeEmail{builder: builder}
+}
+
+// EmailBodyParameter
 type EmailBodyParameter struct {
 	Code      string
 	EmailAddr dp.EmailAddr
 	Community domain.Community
 }
 
+// emailBodyBuilder
 type emailBodyBuilder interface {
 	Build(*EmailBodyParameter) (emaildelivery.EmailBody, error)
 }
 
-func NewSigningCodeEmail(builder emailBodyBuilder) *SigningCodeEmail {
-	return &SigningCodeEmail{builder: builder}
+// SigningCodeEmail
+type SigningCodeEmail interface {
+	Builder(p *EmailBodyParameter) signingCodeEmailAdapter
 }
 
-// SigningCodeEmail
-type SigningCodeEmail struct {
+// signingCodeEmail
+type signingCodeEmail struct {
 	builder emailBodyBuilder
 }
 
-func (e *SigningCodeEmail) Builder(p *EmailBodyParameter) signingCodeEmailAdapter {
+func (e *signingCodeEmail) Builder(p *EmailBodyParameter) signingCodeEmailAdapter {
 	return signingCodeEmailAdapter{
 		builder: e.builder,
 		p:       *p,

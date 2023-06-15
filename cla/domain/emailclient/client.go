@@ -2,22 +2,28 @@ package emailclient
 
 import "github.com/opensourceways/app-cla-signing/cla/domain/emaildelivery"
 
-type emailDeliveryBuilder interface {
-	Build(linkId string) (emaildelivery.EmailDelivery, error)
-}
-
-func NewEmailClient(builder emailDeliveryBuilder) *EmailClient {
-	return &EmailClient{
+func NewEmailClient(builder emailDeliveryBuilder) EmailClient {
+	return &emailClient{
 		builder: builder,
 	}
 }
 
+// emailDeliveryBuilder
+type emailDeliveryBuilder interface {
+	Build(linkId string) (emaildelivery.EmailDelivery, error)
+}
+
 // EmailClient
-type EmailClient struct {
+type EmailClient interface {
+	Builder(linkId string) emailDeliveryBuilderAdapter
+}
+
+// emailClient
+type emailClient struct {
 	builder emailDeliveryBuilder
 }
 
-func (cli *EmailClient) Builder(linkId string) emailDeliveryBuilderAdapter {
+func (cli *emailClient) Builder(linkId string) emailDeliveryBuilderAdapter {
 	return emailDeliveryBuilderAdapter{builder: cli.builder, linkId: linkId}
 }
 

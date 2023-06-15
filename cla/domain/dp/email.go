@@ -3,6 +3,8 @@ package dp
 import (
 	"errors"
 	"regexp"
+
+	"github.com/opensourceways/app-cla-signing/utils"
 )
 
 var reEmailAddr = regexp.MustCompile(`^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,6})$`)
@@ -10,6 +12,7 @@ var reEmailAddr = regexp.MustCompile(`^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-
 // EmailAddr
 type EmailAddr interface {
 	EmailAddr() string
+	Domain() string
 }
 
 func NewEmailAddr(v string) (EmailAddr, error) {
@@ -24,4 +27,8 @@ type emailAddr string
 
 func (r emailAddr) EmailAddr() string {
 	return string(r)
+}
+
+func (r emailAddr) Domain() string {
+	return utils.EmailSuffix(string(r))
 }
