@@ -34,7 +34,7 @@ func (es *EmployeeSigning) ChangeEnabled(b bool) bool {
 
 func (es *EmployeeSigning) Remove() error {
 	if es.Enabled {
-		return errorRemoveEnabledEmployee
+		return errorRemoveEnabledSigning
 	}
 
 	return nil
