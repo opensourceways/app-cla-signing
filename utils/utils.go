@@ -16,6 +16,14 @@ func Now() int64 {
 	return time.Now().Unix()
 }
 
+func Date(v int64) string {
+	if v == 0 {
+		v = Now()
+	}
+
+	return time.Unix(v, 0).Format("2006-01-02")
+}
+
 func EmailSuffix(email string) string {
 	v := strings.Split(email, "@")
 	if len(v) == 2 {
