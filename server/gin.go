@@ -17,6 +17,7 @@ import (
 	"github.com/opensourceways/app-cla-signing/cla/domain/emailclient"
 	"github.com/opensourceways/app-cla-signing/cla/domain/signingcodeemail"
 	"github.com/opensourceways/app-cla-signing/cla/domain/userservice"
+	"github.com/opensourceways/app-cla-signing/cla/domain/vcservice"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/corpemaildomainemailimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/emailclientimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/emaildeliveryimpl"
@@ -79,20 +80,22 @@ func setRouter(engine *gin.Engine, cfg *config.Config) {
 }
 
 func setApiV1(v1 *gin.RouterGroup, cfg *config.Config) {
-	initVerificationCode(v1, cfg)
-	initEmployeeManager(v1, cfg)
-}
-
-func initVerificationCode(v1 *gin.RouterGroup, cfg *config.Config) {
-	cli := emailclient.NewEmailClient(emailclientimpl.NewEmailClientImpl())
+	randomCode := randomcodeimpl.NewRandomCodeImpl()
 
 	repo := repositoryimpl.NewVerificationCode(
 		mongodb.DAO(cfg.Mongodb.Collections.VerificationCode),
 	)
 
-	delivery := emaildeliveryimpl.NewEmailDeliveryImpl()
+	vcService := vcservice.NewVCService(repo, randomCode)
 
-	randomCode := randomcodeimpl.NewRandomCodeImpl()
+	initVerificationCode(v1, cfg, vcService)
+	initEmployeeManager(v1, cfg, vcService)
+}
+
+func initVerificationCode(v1 *gin.RouterGroup, cfg *config.Config, vcService vcservice.VCService) {
+	cli := emailclient.NewEmailClient(emailclientimpl.NewEmailClientImpl())
+
+	delivery := emaildeliveryimpl.NewEmailDeliveryImpl()
 
 	signingCode := signingcodeemail.NewSigningCodeEmail(
 		signingcodeemailimpl.NewSigningCodeEmailImpl(),
@@ -102,17 +105,18 @@ func initVerificationCode(v1 *gin.RouterGroup, cfg *config.Config) {
 		corpemaildomainemailimpl.NewCorpEmailDomainEmailImpl(),
 	)
 
+	// VerificationCodeController
 	controller.AddRouteForVerificationCodeController(
 		v1, app.NewSigningCodeService(
-			cli, repo, signingCode, delivery, randomCode,
+			cli, signingCode, delivery, vcService,
 		),
 		app.NewEmailDomainCodeService(
-			cli, repo, corpEmailDomain, delivery, randomCode,
+			cli, corpEmailDomain, delivery, vcService,
 		),
 	)
 }
 
-func initEmployeeManager(v1 *gin.RouterGroup, cfg *config.Config) {
+func initEmployeeManager(v1 *gin.RouterGroup, cfg *config.Config, vcService vcservice.VCService) {
 	repo := repositoryimpl.NewCorpSigning(
 		mongodb.DAO(cfg.Mongodb.Collections.CorpSigning),
 	)
@@ -127,9 +131,17 @@ func initEmployeeManager(v1 *gin.RouterGroup, cfg *config.Config) {
 
 	user := userservice.NewUserService(userRepo, encrypt, password)
 
+	// EmployeeManagerController
 	controller.AddRouteForEmployeeManagerController(
 		v1, app.NewEmployeeManagerService(
 			repo, user,
+		),
+	)
+
+	// CorpEmailDomainController
+	controller.AddRouteForCorpEmailDomainController(
+		v1, app.NewCorpEmailDomainService(
+			repo, vcService,
 		),
 	)
 }

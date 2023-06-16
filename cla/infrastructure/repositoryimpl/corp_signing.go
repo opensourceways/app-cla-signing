@@ -21,3 +21,7 @@ func (impl *corpSigning) Find(string) (domain.CorpSigning, error) {
 func (impl *corpSigning) SaveManagers(*domain.CorpSigning) error {
 	return nil
 }
+
+func (impl *corpSigning) SaveEmailDomain(*domain.CorpSigning) error {
+	return nil
+}
