@@ -90,6 +90,7 @@ func setApiV1(v1 *gin.RouterGroup, cfg *config.Config) {
 
 	initVerificationCode(v1, cfg, vcService)
 	initEmployeeManager(v1, cfg, vcService)
+	initEmployeeSigning(v1, cfg)
 }
 
 func initVerificationCode(v1 *gin.RouterGroup, cfg *config.Config, vcService vcservice.VCService) {
@@ -143,5 +144,15 @@ func initEmployeeManager(v1 *gin.RouterGroup, cfg *config.Config, vcService vcse
 		v1, app.NewCorpEmailDomainService(
 			repo, vcService,
 		),
+	)
+}
+
+func initEmployeeSigning(v1 *gin.RouterGroup, cfg *config.Config) {
+	repo := repositoryimpl.NewEmployeeSigning(
+		mongodb.DAO(cfg.Mongodb.Collections.EmployeeSigning),
+	)
+
+	controller.AddRouteForEmployeeSigningController(
+		v1, app.NewEmployeeSigningService(repo),
 	)
 }
