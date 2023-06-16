@@ -27,6 +27,10 @@ type CorpSigning struct {
 	Version int
 }
 
+func (cs *CorpSigning) AddEmailDomain(email dp.EmailAddr) error {
+	return cs.Corporation.addEmailDomain(email.Domain())
+}
+
 func (cs *CorpSigning) AddManagers(managers []Manager) error {
 	if len(cs.Managers)+len(managers) > config.MaxNumOfEmployeeManager {
 		return errorTooManyEmployeeManagers
