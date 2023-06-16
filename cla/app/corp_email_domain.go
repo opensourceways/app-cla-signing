@@ -49,5 +49,5 @@ func (s *corpEmailDomainService) List(corpSigningId string) ([]string, error) {
 		return nil, err
 	}
 
-	return cs.Corporation.EmailDomains, nil
+	return cs.EmailDomains(), nil
 }
