@@ -2,6 +2,11 @@ package domain
 
 import "github.com/opensourceways/app-cla-signing/cla/domain/dp"
 
+const (
+	RoleAdmin   = "admin"
+	RoleManager = "manager"
+)
+
 type Representative struct {
 	Name  dp.Name
 	Email dp.EmailAddr
@@ -33,11 +38,11 @@ func (cs *CorpSigning) EmailDomains() []string {
 
 func (cs *CorpSigning) GetRole(a dp.Account) string {
 	if cs.Admin.isMe(a) {
-		return "admin"
+		return RoleAdmin
 	}
 
 	if _, ok := cs.includeManager(a); ok {
-		return "manager"
+		return RoleManager
 	}
 
 	return ""
