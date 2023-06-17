@@ -13,7 +13,8 @@ func Init(cfg *Config) {
 type Config struct {
 	MaxLengthOfName     int `json:"max_length_of_name"        required:"true"`
 	MaxLengthOfTitle    int `json:"max_length_of_title"       required:"true"`
-	MaxLengthOfAccount  int `json:"max_length_of_account"   required:"true"`
+	MaxLengthOfEmail    int `json:"max_length_of_email"       required:"true"`
+	MaxLengthOfAccount  int `json:"max_length_of_account"     required:"true"`
 	MaxLengthOfCorpName int `json:"max_length_of_corp_name"   required:"true"`
 	MinLengthOfPassword int `json:"min_length_of_password"    required:"true"`
 

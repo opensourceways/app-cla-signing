@@ -71,7 +71,7 @@ func (ctl employeeSigningController) UpdateEmployeeSigning(ctx *gin.Context) {
 	if err := ctl.s.Update(cmd); err != nil {
 		commonctl.SendFailedResp(ctx, err)
 	} else {
-		commonctl.SendRespOfPut(ctx)
+		commonctl.SendRespOfUpdate(ctx)
 	}
 }
 

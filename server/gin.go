@@ -26,6 +26,7 @@ import (
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/randomcodeimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/repositoryimpl"
 	"github.com/opensourceways/app-cla-signing/cla/infrastructure/signingcodeemailimpl"
+	"github.com/opensourceways/app-cla-signing/cla/infrastructure/tokenimpl"
 	"github.com/opensourceways/app-cla-signing/common/infrastructure/mongodb"
 	"github.com/opensourceways/app-cla-signing/server/config"
 	"github.com/opensourceways/app-cla-signing/server/docs"
@@ -144,6 +145,12 @@ func initEmployeeManager(v1 *gin.RouterGroup, cfg *config.Config, vcService vcse
 		v1, app.NewCorpEmailDomainService(
 			repo, vcService,
 		),
+	)
+
+	// UserController
+	controller.AddRouteForUserController(
+		v1, app.NewUserService(repo, user),
+		tokenimpl.NewTokenImpl(),
 	)
 }
 
