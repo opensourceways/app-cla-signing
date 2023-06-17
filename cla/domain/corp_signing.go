@@ -31,6 +31,18 @@ func (cs *CorpSigning) EmailDomains() []string {
 	return cs.Corporation.EmailDomains
 }
 
+func (cs *CorpSigning) GetRole(a dp.Account) string {
+	if cs.Admin.isMe(a) {
+		return "admin"
+	}
+
+	if _, ok := cs.includeManager(a); ok {
+		return "manager"
+	}
+
+	return ""
+}
+
 func (cs *CorpSigning) AddEmailDomain(email dp.EmailAddr) error {
 	return cs.Corporation.addEmailDomain(email.Domain())
 }

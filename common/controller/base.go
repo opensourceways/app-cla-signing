@@ -24,7 +24,7 @@ func SendRespOfCreate(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, newResponseCodeMsg("", "success"))
 }
 
-func SendRespOfPut(ctx *gin.Context) {
+func SendRespOfUpdate(ctx *gin.Context) {
 	ctx.JSON(http.StatusAccepted, newResponseCodeMsg("", "success"))
 }
 

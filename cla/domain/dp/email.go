@@ -9,18 +9,24 @@ import (
 
 var reEmailAddr = regexp.MustCompile(`^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,6})$`)
 
+func NewEmailAddr(v string) (EmailAddr, error) {
+	err := errors.New("invalid email address")
+
+	if utils.StrLen(v) > config.MaxLengthOfEmail {
+		return nil, err
+	}
+
+	if v == "" || !reEmailAddr.MatchString(v) {
+		return nil, err
+	}
+
+	return emailAddr(v), nil
+}
+
 // EmailAddr
 type EmailAddr interface {
 	EmailAddr() string
 	Domain() string
-}
-
-func NewEmailAddr(v string) (EmailAddr, error) {
-	if v == "" || !reEmailAddr.MatchString(v) {
-		return nil, errors.New("invalid email address")
-	}
-
-	return emailAddr(v), nil
 }
 
 type emailAddr string

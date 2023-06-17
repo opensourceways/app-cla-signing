@@ -9,3 +9,8 @@ type User struct {
 	CorpSigningId  string
 	PasswordChaged bool
 }
+
+func (u *User) ChangePassword(p string) {
+	u.Password = p
+	u.PasswordChaged = true
+}

@@ -13,15 +13,11 @@ var reAccount = regexp.MustCompile("^[a-zA-Z0-9_.-]+_[a-zA-Z0-9-]+(\\.[a-zA-Z0-9
 func NewAccount(v string) (Account, error) {
 	err := errors.New("invalid account")
 
-	if v == "" {
+	if utils.StrLen(v) > config.MaxLengthOfAccount {
 		return nil, err
 	}
 
-	if max := config.MaxLengthOfAccount; utils.StrLen(v) > max {
-		return nil, err
-	}
-
-	if !reAccount.MatchString(v) {
+	if v == "" || !reAccount.MatchString(v) {
 		return nil, err
 	}
 

@@ -28,6 +28,10 @@ func NewUserService(
 type UserService interface {
 	Add(csId string, managers []domain.Manager) (err error)
 	Remove(accounts []dp.Account)
+	FindByAccount(dp.Account, dp.Password) (domain.User, error)
+	FindByEmail(dp.EmailAddr, dp.Password) (domain.User, error)
+	IsValidPassword(p dp.Password) bool
+	ChangePassword(u *domain.User, p dp.Password) error
 }
 
 type userService struct {
@@ -69,6 +73,39 @@ func (s *userService) Remove(accounts []dp.Account) {
 			)
 		}
 	}
+}
+
+func (s *userService) FindByAccount(a dp.Account, p dp.Password) (u domain.User, err error) {
+	v, err := s.encrypt.Ecrypt(p.Password())
+	if err != nil {
+		return
+	}
+
+	return s.repo.FindByAccount(a, v)
+}
+
+func (s *userService) FindByEmail(e dp.EmailAddr, p dp.Password) (u domain.User, err error) {
+	v, err := s.encrypt.Ecrypt(p.Password())
+	if err != nil {
+		return
+	}
+
+	return s.repo.FindByEmail(e, v)
+}
+
+func (s *userService) IsValidPassword(p dp.Password) bool {
+	return s.password.IsValid(p.Password())
+}
+
+func (s *userService) ChangePassword(u *domain.User, p dp.Password) error {
+	v, err := s.encrypt.Ecrypt(p.Password())
+	if err != nil {
+		return err
+	}
+
+	u.ChangePassword(v)
+
+	return s.repo.Save(u)
 }
 
 func (s *userService) add(csId string, manager *domain.Manager) error {

@@ -22,3 +22,13 @@ func (impl *user) Add(*domain.User) error {
 func (impl *user) Remove(dp.Account) error {
 	return nil
 }
+
+func (impl *user) Save(*domain.User) error {
+	return nil
+}
+func (impl *user) FindByAccount(dp.Account, string) (domain.User, error) {
+	return domain.User{}, nil
+}
+func (impl *user) FindByEmail(dp.EmailAddr, string) (domain.User, error) {
+	return domain.User{}, nil
+}
